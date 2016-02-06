@@ -54,6 +54,16 @@ unsigned char** gdimage_to_bw_array(int size_x, int size_y, gdImagePtr gd_image)
     return array;
 }
 
+unsigned char restrain_int(int input) {
+    if (input < 0x00) {
+        return 0x00;
+    }
+
+    if (input > 0xFF) {
+        return 0xFF;
+    }
+}
+
 void floyd_steinberg_dithering (int size_x, int size_y, unsigned char** bw_array) {
     for (int j = 0; j < size_y; ++j) {
         for (int i = 0; i < size_x; ++i) {
@@ -65,19 +75,24 @@ void floyd_steinberg_dithering (int size_x, int size_y, unsigned char** bw_array
                 bw_array[i][j] = 0x00;
             }
 
-            char delta = old_pixel-bw_array[i][j];
+            int delta = old_pixel-bw_array[i][j];
+            int pixbuf;
 
             if (i+1 < size_x) {
-                bw_array[i+1][j] += (delta*7)/16;
+                pixbuf = bw_array[i+1][j] + (delta*7)/16;
+                bw_array[i+1][j] = restrain_int(pixbuf);
             }
             if (i-1 > 0 && j+1 < size_y) {
-                bw_array[i-1][j+1] += (delta*3)/16;
+                pixbuf = bw_array[i-1][j+1] + (delta*3)/16;
+                bw_array[i-1][j+1] = restrain_int(pixbuf);
             }
             if (j+1 < size_y) {
-                bw_array[i][j+1] += (delta*5)/16;
+                pixbuf = bw_array[i][j+1] + (delta*5)/16;
+                bw_array[i][j+1] = restrain_int(pixbuf);
             }
             if (i+1 < size_x && j+1 < size_y) {
-                bw_array[i+1][j+1] += delta/16;
+                pixbuf = bw_array[i+1][j+1] + delta/16;
+                bw_array[i+1][j+1] = restrain_int(pixbuf);
             }
         }
     }
@@ -135,7 +150,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    //floyd_steinberg_dithering(image_size_x,image_size_y,bw_image_array);
+    floyd_steinberg_dithering(image_size_x,image_size_y,bw_image_array);
 
     export_as_c(image_size_x,image_size_y,bw_image_array);
 
