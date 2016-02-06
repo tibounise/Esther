@@ -62,6 +62,8 @@ unsigned char restrain_int(int input) {
     if (input > 0xFF) {
         return 0xFF;
     }
+
+    return input;
 }
 
 void floyd_steinberg_dithering (int size_x, int size_y, unsigned char** bw_array) {
