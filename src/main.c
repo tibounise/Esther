@@ -20,19 +20,12 @@ void free_2d_array(int size_x, int size_y, unsigned char **array) {
     free(array);
 }
 
+bool check_image_type_supported(char *image_path) {
+    return gdSupportsFileType(image_path, false);
+}
+
 gdImagePtr load_image(char *image_path) {
-    FILE *image_file;
-    image_file = fopen(image_path,"rb");
-
-    if (image_file == NULL) {
-        return NULL;
-    }
-
-    gdImagePtr gd_image;
-    gd_image = gdImageCreateFromPng(image_file);
-    fclose(image_file);
-
-    return gd_image;
+    return gdImageCreateFromFile(image_path);
 }
 
 unsigned char** gdimage_to_bw_array(int size_x, int size_y, gdImagePtr gd_image) {
@@ -130,6 +123,11 @@ int main(int argc, char *argv[]) {
     // Argument verification
     if (argc != 2) {
         fprintf(stderr, "Usage : esther [inputfile.png]\n");
+        return EXIT_FAILURE;
+    }
+
+    if (!check_image_type_supported(argv[1])) {
+        fprintf(stderr, "Image type not supported\n");
         return EXIT_FAILURE;
     }
 
