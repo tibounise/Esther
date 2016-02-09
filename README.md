@@ -4,7 +4,7 @@ Image export for micro-controllers with [floyd-steinberg dithering](https://en.w
 
 ## Compilation
 
-Requires [LibGD](http://libgd.github.io) to be installed. Then, simply do :
+Requires [LibGD](http://libgd.github.io). To compile, simply do :
 
 ```
 cd src/
