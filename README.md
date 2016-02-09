@@ -1,6 +1,6 @@
 # Esther
 
-Image encoder for monochrome graphic displays.
+Image export for micro-controllers with floyd-steinberg algorithm.
 
 ## Usage
 
