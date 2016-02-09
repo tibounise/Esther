@@ -7,5 +7,3 @@ Image export for micro-controllers with [floyd-steinberg dithering](https://en.w
 ```
 esther myImage.png
 ```
-
-**Notice :** _only_ PNG images are currently supported.
