@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <gd.h>
 #include "main.h"
 
@@ -120,22 +121,49 @@ void export_as_c (int size_x, int size_y, unsigned char** array) {
 }
 
 int main(int argc, char *argv[]) {
-    // Argument verification
-    if (argc != 2) {
-        fprintf(stderr, "Usage : esther [inputfile.png]\n");
+    /* Parsing options */
+    char option_character;
+    bool disable_dithering = false;
+    bool show_help = false;
+
+    while ((option_character = getopt(argc, argv, "dh")) != -1) {
+        switch (option_character) {
+        case 'd':
+            disable_dithering = true;
+            break;
+        case 'h':
+            show_help = true;
+            break;
+        default:
+        case '?':
+            fprintf(stderr, "%s: option '-%c' is invalid: ignored\n", argv[0], optopt);
+            return EXIT_FAILURE;
+            break;
+        }
+    }
+
+    /* Stops if no image file provided */
+    if (optind+1 > argc) {
+        fprintf(stderr, "%s: requires an argument\n", argv[0]);
         return EXIT_FAILURE;
     }
 
-    if (!check_image_type_supported(argv[1])) {
+    /* Show help */
+    if (show_help) {
+        printf("Usage : esther [-d] inputfile\n");
+        return EXIT_SUCCESS;
+    }
+
+    if (!check_image_type_supported(argv[optind])) {
         fprintf(stderr, "Image type not supported\n");
         return EXIT_FAILURE;
     }
 
     gdImagePtr source_image;
-    source_image = load_image(argv[1]);
+    source_image = load_image(argv[optind]);
 
     if (source_image == NULL) {
-        fprintf(stderr, "Cannot open %s\n", argv[1]);
+        fprintf(stderr, "Cannot open %s\n", argv[optind]);
         return EXIT_FAILURE;
     }
 
@@ -150,7 +178,10 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    floyd_steinberg_dithering(image_size_x,image_size_y,bw_image_array);
+    /* Enable dithering if needed */
+    if (!disable_dithering) {
+        floyd_steinberg_dithering(image_size_x,image_size_y,bw_image_array);
+    }
 
     export_as_c(image_size_x,image_size_y,bw_image_array);
 
